@@ -9,6 +9,7 @@ script_dir = os.path.dirname(os.path.abspath(__file__))
 file_path = os.path.join(script_dir, "saved_data.json")
 
 
+
 plants_species = {
     "tomatoes": "*",
     "potatoes": "@",
@@ -52,7 +53,7 @@ def show_inventory(inventory):
 
 def get_plant(plants_species):
     while True:
-        plants = input("plant alo vvodi: ")
+        plants = input("Enter plant name or symbol: ")
         if plants in plants_species:  
             return plants
         for plant_name, plant_sign in plants_species.items():
@@ -85,7 +86,7 @@ def inventory_change(*, inventory, action, plant):
 
 def get_coordinates(field_size):
     while True:
-        coordinates = input("Coordinats alo vvodi vot tak '1 2': ")
+        coordinates = input("Enter coordinates (row col): ")
         coordinates = coordinates.split()
         if len(coordinates) == 2:
             try:
@@ -100,7 +101,7 @@ def get_coordinates(field_size):
             except Exception as e:
                 print(f"Error: {e}")
         else:
-            print("NNNNNOOOOOOTTTTT 2 NNNUUUMMMBBBEEERRRSSS!!!!!!!") 
+            print("Please enter exactly 2 numbers!") 
             continue
         
 
@@ -164,7 +165,7 @@ def harvest(*,x,y, field, inventory):
 def game_loop(field, inventory):
     show_field(field)
     while True:
-        answer = input("1. check inventory 2. plant a plant 3. show field 4. save data 5. harvest 6. quit the game ")
+        answer = input("\n1. Inventory\n2. Plant\n3. Show field\n4. Save\n5. Harvest\n6. Quit\nChoose (1-6): ")
         if answer == "1":
             show_inventory(inventory)
         elif answer == "2":
@@ -209,8 +210,5 @@ def main_game():
                 print("No saved game found")
                 
         else:
-            print("wrong answer!!!")
+            print("Invalid choice")
 main_game()    
-
-
-
