@@ -8,22 +8,45 @@ import sys
 script_dir = os.path.dirname(os.path.abspath(__file__))
 file_path = os.path.join(script_dir, "saved_data.json")
 
+class Plant:
+    def __init__(self, name, growth_stages):
+        self.name = name
+        self.growth_stages = growth_stages
+        self.current_stage = 0
+        self.is_ripe = False
+    @property
+    def symbol(self):
+        return self.growth_stages[self.current_stage]
+    
+    def grow(self):
+        if self.current_stage < len(self.growth_stages)-1:
+            self.current_stage += 1
+            if self.current_stage == len(self.growth_stages)-1:
+                self.is_ripe = True
+            return True
+        return False
+    def harvest(self):
+        if self.is_ripe == True:
+            return self.name
+        return None
 
+
+    
 
 plants_species = {
-    "tomatoes": "*",
-    "potatoes": "@",
-    "cucumbers": "O"
+    "tomatoes": Plant("tomatoes", [".","🪴","🍅"]),
+    "potatoes": Plant("potatoes", ["*","🌿","🥔"]),
+    "cucumbers": Plant("cucumbers",["O","🌱","🥒"])
 }
 
-# time and growing shit idk whatever anyway growing plants and stuf like that
+
 
 def create_new_field(width_and_height):
     field = []
     for i in range (width_and_height):
         row = []
         for j in range (width_and_height):
-            row.append("|0|")
+            row.append(None)
         field.append(row)    
     return field
 
@@ -40,10 +63,18 @@ def save_data(*, field, inventory, file_path):
     except Exception as e:
         print(f"Error {e}")
 
+        
 def show_field(field):
-    for i in field:
-        print(i)
-        print()
+    for x in range(len(field)):
+        row_display = []
+        for y in range(len(field)):
+            cell = field[x][y]  
+            if cell is None:  
+                row_display.append("|0|")
+            else:  
+                row_display.append(cell.symbol)  
+        print(" ".join(row_display))  
+        
 
 def show_inventory(inventory):
     for plants, quantity in inventory.items():
@@ -51,38 +82,40 @@ def show_inventory(inventory):
         print()
 
 
-def get_plant(plants_species):
+def get_plant(*, plants_species):
     while True:
         plants = input("Enter plant name or symbol: ")
         if plants in plants_species:  
-            return plants
-        for plant_name, plant_sign in plants_species.items():
-            if plants == plant_sign:
-                return plant_name 
+            return plants_species[plants]
+        for plant_name, plant_object in plants_species.items():
+            if plants == plant_object.symbol:
+                return plants_species[plant_name] 
         print(f"there is no '{plants}' plant. Available: {list(plants_species.keys())}")
 
+
+
 def check_inventory(inventory, plant):
-    if plant not in inventory:
+    if plant.name not in inventory:
         print("You don't have this plant")
         return False
-    return inventory[plant] > 0 
+    return inventory[plant.name] > 0 
     
 
 
 def share_plant(plant_spieces, inventory):
-    plant = get_plant(plants_species)
+    plant = get_plant(plants_species=plants_species)
     if check_inventory(inventory, plant):
-        return plant_spieces[plant], plant
-    print(f"Not enough {plant} seeds! You have {inventory[plant]}")  
-    return None, None
-    
+        return plant
+    print(f"Not enough {plant.name} seeds! You have {inventory[plant.name]}")  
+    return None
+
 
 
 def inventory_change(*, inventory, action, plant):
     if action == "planting_plant":
-        inventory[plant] -= 1   
+        inventory[plant.name] -= 1   
     elif action == "harvest":
-        inventory[plant] += 1
+        inventory[plant.name] += 1
 
 def get_coordinates(field_size):
     while True:
@@ -138,27 +171,22 @@ def check_saved_field(*, file_path):
     except Exception as e:
         print(f"Error: {e}") 
 
-def planting(*,seed ,plant,x,y, field, inventory):
+def planting(*,plant,x,y, field, inventory):
     field[x][y] = plant
-    inventory_change(inventory=inventory, action="planting_plant", plant=seed)
+    inventory_change(inventory=inventory, action="planting_plant", plant=plant)
 
-def sign_to_name(*, given_sign, plant_species):
-    for name, sign in plant_species.items():
-        if sign == given_sign:
-            return name
-    return None
         
 def harvest(*,x,y, field, inventory):
-    if field[x][y] != "|0|":
-        collected_plant = field[x][y]
-        field[x][y]= "|0|"
-        collected_plant = sign_to_name(given_sign=collected_plant, plant_species=plants_species)
+    if field[x][y] != None:
+        plant = field[x][y]
+        collected_plant = plant.harvest()
         if collected_plant is None:
-            print("Sry, unknown plant, it is a bug, we will fix it soon!!!")
+            print(f"Sorry! The {collected_plant} is not ready yet!")
             return
-        print(f"{collected_plant} successfully collected!")
-        inventory_change(inventory=inventory, action="harvest", plant=collected_plant)
-        return collected_plant   
+        field[x][y] = None
+        print(f"{plant.name} successfully collected!")
+        inventory_change(inventory=inventory, action="harvest", plant=plant)
+         
     else:
         print("The cell is empty!!!")
 
@@ -170,9 +198,9 @@ def game_loop(field, inventory):
             show_inventory(inventory)
         elif answer == "2":
             x, y = get_coordinates(len(field))
-            plant, seed = share_plant(plants_species, inventory)
+            plant = share_plant(plants_species, inventory)
             if plant != None:
-                planting(seed=seed, plant=plant, x=x, y=y, field=field, inventory=inventory)
+                planting(plant=plant, x=x, y=y, field=field, inventory=inventory)
                 show_field(field)
             else: 
                 continue
@@ -212,3 +240,17 @@ def main_game():
         else:
             print("Invalid choice")
 main_game()    
+
+
+
+# inventory = {
+#             "tomatoes": 0,
+#             "potatoes": 3,
+#             "cucumbers": 3
+#         }
+# field = create_new_field(3)
+# x, y = get_coordinates(len(field))
+# plant = share_plant(plants_species, inventory) 
+# if plant is not None:   
+#     planting(seed=plant.name, plant=plant, x=x, y=y, field=field, inventory=inventory)
+# show_field(field)
