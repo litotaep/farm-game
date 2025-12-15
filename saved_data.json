@@ -1,24 +1,36 @@
 {
     "field": [
         [
-            "|0|",
-            "|0| ",
-            "|0| "
+            {
+                "name": "cucumbers",
+                "stage": 0,
+                "is_ripe": false
+            },
+            null,
+            null
         ],
         [
-            "|0| ",
-            "|0|",
-            "|0| "
+            null,
+            {
+                "name": "potatoes",
+                "stage": 0,
+                "is_ripe": false
+            },
+            {
+                "name": "cucumbers",
+                "stage": 0,
+                "is_ripe": false
+            }
         ],
         [
-            "|0| ",
-            "|0| ",
-            "O"
+            null,
+            null,
+            null
         ]
     ],
     "inventory": {
         "tomatoes": 0,
         "potatoes": 2,
-        "cucumbers": 3
+        "cucumbers": 1
     }
 }
