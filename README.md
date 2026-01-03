@@ -29,6 +29,7 @@ Each crop goes through several growth stages.
 
 ```bash
 python main.py
+```
 At startup, choose:
  • new — start a new game
  • continue — continue the saved game
