@@ -1,36 +1,74 @@
 {
     "field": [
         [
+            null,
             {
                 "name": "cucumbers",
-                "stage": 0,
-                "is_ripe": false
+                "stage": 2,
+                "is_ripe": true,
+                "planted_time": 1767470313.4576466
             },
-            null,
             null
         ],
         [
+            null,
+            {
+                "name": "cucumbers",
+                "stage": 2,
+                "is_ripe": true,
+                "planted_time": 1767470303.1312675
+            },
             null,
             {
                 "name": "potatoes",
-                "stage": 0,
-                "is_ripe": false
+                "stage": 2,
+                "is_ripe": true,
+                "planted_time": 1767469717.610125
             },
+            null,
             {
-                "name": "cucumbers",
-                "stage": 0,
-                "is_ripe": false
+                "name": "potatoes",
+                "stage": 2,
+                "is_ripe": true,
+                "planted_time": 1767469717.610125
             }
         ],
         [
-            null,
-            null,
-            null
+            {
+                "name": "cucumbers",
+                "stage": 2,
+                "is_ripe": true,
+                "planted_time": 1767470263.786372
+            },
+            {
+                "name": "cucumbers",
+                "stage": 2,
+                "is_ripe": true,
+                "planted_time": 1767470287.5912395
+            },
+            {
+                "name": "cucumbers",
+                "stage": 2,
+                "is_ripe": true,
+                "planted_time": 1767470296.4912674
+            },
+            {
+                "name": "potatoes",
+                "stage": 2,
+                "is_ripe": true,
+                "planted_time": 1767469717.610125
+            },
+            {
+                "name": "potatoes",
+                "stage": 2,
+                "is_ripe": true,
+                "planted_time": 1767469679.8086643
+            }
         ]
     ],
     "inventory": {
         "tomatoes": 0,
-        "potatoes": 2,
+        "potatoes": 8,
         "cucumbers": 1
     }
 }

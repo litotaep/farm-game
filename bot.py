@@ -64,7 +64,8 @@ def save_data(*, field, inventory, file_path):
                 save_row.append({
                     "name": cell.name,
                     "stage": cell.current_stage,
-                    "is_ripe": cell.is_ripe
+                    "is_ripe": cell.is_ripe,
+                    "planted_time": cell.planted_time
                 })
         save_field.append(save_row)
     data = {
@@ -80,6 +81,7 @@ def save_data(*, field, inventory, file_path):
 
         
 def show_field(field):
+    check_growth(field = field)
     for x in range(len(field)):
         row_display = []
         for y in range(len(field)):
@@ -118,11 +120,18 @@ def check_inventory(inventory, plant):
 
 
 def share_plant(plant_spieces, inventory):
-    plant = get_plant(plants_species=plants_species)
-    if check_inventory(inventory, plant):
-        return plant
-    print(f"Not enough {plant.name} seeds! You have {inventory[plant.name]}")  
-    return None
+    plant_template = get_plant(plants_species=plants_species) 
+    
+    if check_inventory(inventory, plant_template):
+        new_plant = Plant(
+            name=plant_template.name,
+            growth_stages=plant_template.growth_stages.copy(), 
+            growth_time=plant_template.growth_time
+        )
+        return new_plant  
+    else:
+        print(f"Not enough {plant_template.name} seeds! You have {inventory[plant_template.name]}")
+        return None
 
 
 
@@ -130,7 +139,7 @@ def inventory_change(*, inventory, action, plant):
     if action == "planting_plant":
         inventory[plant.name] -= 1   
     elif action == "harvest":
-        inventory[plant.name] += 1
+        inventory[plant.name] += 2
 
 def get_coordinates(field_size):
     while True:
@@ -172,6 +181,7 @@ def check_saved_inventory(*, file_path):
 
 def dict_to_object(*, field, plants_species):
     new_field = []
+    current_time = time.time()
     for row in field:
         new_row = []
         for cell in row:
@@ -185,9 +195,18 @@ def dict_to_object(*, field, plants_species):
                     growth_time=plant_template.growth_time)
                 plant.current_stage = cell["stage"]
                 plant.is_ripe = cell["is_ripe"]
-                new_row.append(plant)
+                if "planted_time" in cell:
+                    plant.planted_time = cell["planted_time"]
+                    time_since_save = current_time - cell["planted_time"]
+                    if time_since_save >= plant.growth_time:
+                        plant.current_stage = len(plant.growth_stages) - 1 
+                        plant.is_ripe = True
+                    elif time_since_save >= plant.growth_time / 2:
+                        plant.current_stage = 1 
+            
+            new_row.append(plant)
         new_field.append(new_row)
-    return new_field    
+    return new_field
 
 def check_saved_field(*, file_path):
     try:
@@ -215,27 +234,16 @@ def planting(*,plant,x,y, field, inventory):
         print("There is another plant in this cell")
 
 def check_growth(*, field):
-    new_field = []
+    current_time = time.time()
     for row in field:
-        new_row = []
-        for cell in row:
-            if cell is None:
-                new_row.append(None)
-            else:
-                if cell.growth_time*2 > (time.time() - cell.planted_time) >= cell.growth_time:
-                    cell.grow()
-                    new_row.append(cell)
-                elif cell.growth_time*2 <= (time.time() - cell.planted_time):
-                    cell.grow()
-                    cell.grow()
-                    new_row.append(cell)
-                else:
-                    new_row.append(cell)
-        new_field.append(new_row)
-    return new_field  
-
-        
-        
+        for plant in row:
+            if plant is None:
+                continue
+            time_passed = current_time - plant.planted_time
+            if plant.current_stage == 0 and time_passed >= plant.growth_time/2:
+                plant.grow()
+            elif plant.current_stage == 1 and time_passed >= plant.growth_time:
+                plant.grow()
 def harvest(*,x,y, field, inventory):
     if field[x][y] != None:
         plant = field[x][y]
@@ -253,7 +261,7 @@ def harvest(*,x,y, field, inventory):
 def game_loop(field, inventory):
     show_field(field)
     while True:
-        answer = input("\n1. Inventory\n2. Plant\n3. Show field\n4. Save\n5. Check field\n6. Harvest\n7. Quit\nChoose (1-6): ")
+        answer = input("\n1. Inventory\n2. Plant\n3. Show field\n4. Save\n5. Harvest\n6. Quit\nChoose (1-6): ")
         if answer == "1":
             show_inventory(inventory)
         elif answer == "2":
@@ -269,12 +277,9 @@ def game_loop(field, inventory):
         elif answer == "4":
             save_data(field=field,inventory=inventory ,file_path=file_path)
         elif answer == "5":
-            field = check_growth(field=field)
-            show_field(field=field)
-        elif answer == "6":
             x, y = get_coordinates(len(field))
             harvest(x=x, y=y, field=field, inventory=inventory)
-        elif answer == "7":
+        elif answer == "6":
             sys.exit()
         
 
